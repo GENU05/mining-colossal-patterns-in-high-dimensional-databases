@@ -13,7 +13,7 @@ class cp_miner:
         minimum support will change for test i have taken it as 2
         unique will count the frequency of the 1 items it is kind of header table
         '''
-        file = "Datasets/RETAIL.csv"
+        file = "Datasets/test1.csv"
         self.rows = []
         self.count = 0
         self.unique = {}
@@ -24,9 +24,10 @@ class cp_miner:
                 for j in row:
                     if j not in self.unique:
                         self.unique[j] = 1
+                        self.count+=1
                     else:
                         self.unique[j] += 1
-                self.count+=1
+        print(self.count)
         self.minsupport = 3
         self.after_preprocessing = []
         self.maxlen = 0
@@ -34,6 +35,7 @@ class cp_miner:
         self.dbv = []
         self.colossal_pattern = []
         self.count = 0
+        self.start = 0
 
     def preprocess_1_itemset(self):
         '''
@@ -43,7 +45,7 @@ class cp_miner:
         for i in self.rows:
             temp = []
             for j in i:
-                if self.unique[j] > self.minsupport:
+                if self.unique[j] >= self.minsupport:
                     temp.append(j)
             if len(temp) != 0:
                 self.after_preprocessing.append(sorted(temp))
@@ -55,7 +57,7 @@ class cp_miner:
         '''
         forsorting = []
         for key,values in self.unique.items():
-            if values > self.minsupport:
+            if values >= self.minsupport:
                 forsorting.append(key)
         forsorting = sorted(forsorting)
         for i in range(len(forsorting)):
@@ -78,7 +80,25 @@ class cp_miner:
             level.transactions.append(newnode)
         level.support = 1
         levels.append(level)
+        # self.commoninlevel1(level)
         self.runminer(levels)
+    
+    def commoninlevel1(self,level):
+        self.temcount = 0
+        pattern = {}
+        for i in range(len(level.transactions)-1):
+            for j in range(i+1,len(level.transactions)):
+                if self.checkequality(level.transactions[i].pattern,level.transactions[j].pattern) == False:
+                    word = ""
+                    # normalcount += 1
+                    for check in level.transactions[j].pattern:
+                        word += str(check)
+                    if word not in pattern:
+                        pattern[word] = 1
+                        self.temcount += 1  
+        print(self.temcount)
+        # print(normalcount)
+        # print(pattern)
 
     def newpattern(self,a,b):
         newpat = []
@@ -97,42 +117,68 @@ class cp_miner:
                 return False
         return True
 
+    def checkequality(self,a,b):
+        for i in range(len(a)):
+            if a[i]!=b[i]:
+                return True
+        return False
+
+    def checknull(self,a):
+        for i in a:
+            if i!=0:
+                return False
+        return True
     def runminer(self,levels):
         new_levels = []
         checker = len(levels)
         for level in levels:
             checker1 = len(level.transactions)
+            self.count += checker1
+            self.start += 1
             for i in range(len(level.transactions)-1):
                 other_level = node()
                 node1 = level.transactions[i]
                 checker3 = node1.pattern
                 checker4 = node1.id
-
                 for j in range(i+1,len(level.transactions)):
-                    self.count += 1
                     node2 = level.transactions[j]
+                    # if self.start == 1:
+                        # if self.checkequality(node1.pattern,node2.pattern):
                     checker5 = node2.pattern
                     checker6 = node2.id
                     temp_node = node()
                     temp_node.id = node1.id + node2.id[-1]
                     temp_node.pattern = self.newpattern(node1.pattern,node2.pattern)
-                    temp_node.support = node1.support + node2.support
-                    if temp_node.support >= self.minsupport:
-                        checking = self.check_clossal(temp_node)
-                        if checking:
-                            self.colossal_pattern.append(temp_node.pattern)
-                    other_level.transactions.append(temp_node)
+                    if self.checknull(temp_node.pattern) == False:
+                        temp_node.support = node1.support + 1
+                        if temp_node.support >= self.minsupport:
+                            checking = self.check_clossal(temp_node)
+                            if checking:
+                                self.colossal_pattern.append(temp_node.pattern)
+                        other_level.transactions.append(temp_node)
+                    # else:
+                    #     checker5 = node2.pattern
+                    #     checker6 = node2.id
+                    #     temp_node = node()
+                    #     temp_node.id = node1.id + node2.id[-1]
+                    #     temp_node.pattern = self.newpattern(node1.pattern,node2.pattern)
+                    #     if !self.checknull(temp_node.pattern):
+                    #         temp_node.support = node1.support + node2.support
+                    #         if temp_node.support >= self.minsupport:
+                    #             checking = self.check_clossal(temp_node)
+                    #             if checking:
+                    #                 self.colossal_pattern.append(temp_node.pattern)
+                    #         other_level.transactions.append(temp_node)
                 other_level.support = level.support + 1
-                if other_level.support == self.minsupport:
+                if other_level.support > self.minsupport:
                     pass
                 else:
                     new_levels.append(other_level)
         if len(levels)==0:
             return
         else:
+            levels = []
             return self.runminer(new_levels)
-
-
 
 def main():
     CP_miner = cp_miner()
