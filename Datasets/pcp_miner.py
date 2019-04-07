@@ -1,4 +1,6 @@
 import csv
+import time
+
 
 class node:
     def __init__(self):
@@ -14,7 +16,7 @@ class cp_miner:
         unique will count the frequency of the 1 items it is kind of header table
         '''
 
-        file = "test1.csv"
+        file = "test5.csv"
         self.rows = []
         self.count = 0
         self.unique = {}
@@ -28,8 +30,8 @@ class cp_miner:
                         self.count+=1
                     else:
                         self.unique[j] += 1
-        # print(self.count)
-        self.minsupport = 3
+        print(self.count)
+        self.minsupport = 4
         self.after_preprocessing = []
         self.maxlen = 0
         self.map_bits = {}
@@ -54,7 +56,7 @@ class cp_miner:
 
     def assign_dbv(self):
         '''
-        Assiging the DBV to the transactions which are left 
+        Assiging the DBV to the transactions which are left
         '''
         forsorting = []
         for key,values in self.unique.items():
@@ -82,22 +84,7 @@ class cp_miner:
             level.transactions.append(newnode)
         level.support = 1
         levels.append(level)
-        # self.commoninlevel1(level)
         self.runminer(level)
-    
-    def commoninlevel1(self,level):
-        self.temcount = 0
-        pattern = {}
-        for i in range(len(level.transactions)-1):
-            for j in range(i+1,len(level.transactions)):
-                if self.checkequality(level.transactions[i].pattern,level.transactions[j].pattern) == False:
-                    word = ""
-                    for check in level.transactions[j].pattern:
-                        word += str(check)
-                    if word not in pattern:
-                        pattern[word] = 1
-                        self.temcount += 1  
-        # print(self.temcount)
 
     def newpattern(self,a,b):
         newpat = []
@@ -153,30 +140,13 @@ class cp_miner:
         strig = ""
         for i in a:
             strig+= str(i)
-        return strig 
+        return strig
 
     def runminer(self,level):
         if level.support == self.minsupport:
             # # print("Entered")
             level.transactions = self.sort_pattern(level.transactions)
             patterns = {}
-            # print("Entered ", len(level.transactions))
-            # donot_touch = {}
-            # for i in range(len(level.transactions)):
-            #     node1 = level.transactions[i]
-            #     checker = self.givestring(node1.pattern)
-            #     if checker not in donot_touch:
-            #         self.count+=1
-            #         for j in range(i+1,len(level.transactions)):
-            #             node2 = level.transactions[j]
-            #             temp_pattern = self.newpattern(node1.pattern,node2.pattern)
-            #             checking_subset = self.checkmatching(temp_pattern, node2.pattern)
-            #             if checking_subset:
-            #                 toadd = self.givestring(node2.pattern)
-            #                 donot_touch[toadd] = 1
-            #         checking = self.check_clossal(node1)
-            #         if checking:
-            #             self.colossal_pattern.append(node1.pattern)
             for nody in level.transactions:
                 self.count += 1
                 if self.givestring(nody.pattern) not in patterns:
@@ -186,18 +156,12 @@ class cp_miner:
                 checking = self.check_clossal(nody)
                 if checking:
                     self.colossal_pattern.append(nody.pattern)
-            # print("**********************")
-            # print(patterns)
-            # self.count += len(list(patterns))
             return
         else:
             level.transactions = self.sort_pattern(level.transactions)
             dont_take = {}
             other = 0
             for i in range(len(level.transactions)):
-                # if i==0:
-                #     print(level.transactions[i].pattern)
-                #     print("*************")
                 node1 = level.transactions[i]
                 checker1 = self.givestring(node1.pattern)
                 other_level = node()
@@ -245,8 +209,11 @@ def main():
     CP_miner = cp_miner()
     CP_miner.preprocess_1_itemset()
     CP_miner.assign_dbv()
+    start=time.time()
     CP_miner.maketree(CP_miner.dbv)
-    print(CP_miner.colossal_pattern)
+    end = time.time()
+    print("Runtime of the program : ", end-start)
+    # print(CP_miner.colossal_pattern)
     # print(len(CP_miner.colossal_pattern))
     # print(CP_miner.count)
 
