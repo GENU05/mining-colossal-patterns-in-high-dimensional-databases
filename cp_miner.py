@@ -8,12 +8,13 @@ class node:
         self.support = 1
 
 class cp_miner:
-    def __init__(self):
+    def __init__(self,f,sup):
         '''
         minimum support will change for test i have taken it as 2
         unique will count the frequency of the 1 items it is kind of header table
         '''
-        file = "Datasets/test1.csv"
+        # file = "Datasets/test1.csv"
+        file = f 
         self.rows = []
         self.count = 0
         self.unique = {}
@@ -28,7 +29,7 @@ class cp_miner:
                     else:
                         self.unique[j] += 1
         print(self.count)
-        self.minsupport = 3
+        self.minsupport = sup
         self.after_preprocessing = []
         self.maxlen = 0
         self.map_bits = {}
@@ -181,7 +182,9 @@ class cp_miner:
             return self.runminer(new_levels)
 
 def main():
-    CP_miner = cp_miner()
+    file = "Datasets/test1.csv"
+    sup = 3
+    CP_miner = cp_miner(file,sup)
     CP_miner.preprocess_1_itemset()
     CP_miner.assign_dbv()
     CP_miner.maketree(CP_miner.dbv)
