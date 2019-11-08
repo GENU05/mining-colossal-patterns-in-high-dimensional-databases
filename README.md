@@ -2,7 +2,7 @@
 Efficient algorithms based on a ELSEVIER paper.
 
 
-Paper Link : [Efficient_Algorithms_for_Mining_Colossal_Patterns_in_High_Dimensional_Databases ][https://www.researchgate.net/publication/312927904]
+Paper Link : (Efficient_Algorithms_for_Mining_Colossal_Patterns_in_High_Dimensional_Databases)[https://www.researchgate.net/publication/312927904]
 
 # Execution 
 
